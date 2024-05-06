@@ -10,7 +10,8 @@ from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from sentence_transformers import CrossEncoder
 from langchain.document_loaders import PyPDFLoader
-
+import csv
+import time
 
 #================================== PDF File ================================================
 def load_pdf(folder_path):
@@ -394,10 +395,34 @@ def main():
             st.session_state['maintain'] = "maintained"
             q1 = st.session_state.past[-1]
             ans = st.session_state.generated[-1]
-            print(q1)
-            with open("log.txt", "a") as f:
-                f.write(f"\nIncorrect answered question: {q1}\nIncorrect Answer: {ans}")
-            st.success("Question & Answer saved in logs")
+            # print(q1)
+            # with open("log.txt", "a") as f:
+            #     f.write(f"\nIncorrect answered question: {q1}\nIncorrect Answer: {ans}")
+            # st.success("Question & Answer saved in logs")
+            
+            # Get the current timestamp=========================================================
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+
+            # Define the file path for the CSV file
+            csv_file_path = "thumbs_down_log.csv"
+
+            # Check if the CSV file exists, and create it if it doesn't
+            file_exists = os.path.isfile(csv_file_path)
+            with open(csv_file_path, mode='a', newline='') as f:
+                fieldnames = ['Timestamp', 'Question', 'Answer']
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                if not file_exists:
+                    writer.writeheader()
+
+            # Write the question, answer, and timestamp to the CSV file
+            with open(csv_file_path, mode='a', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writerow({'Timestamp': timestamp, 'Question': q1, 'Answer': ans})
+
+            # Display success message to the user
+            st.success("Question, answer, and timestamp saved in thumbs_down_log.csv")
+
+            #=======================================================================
             st.session_state['show_button'] = ""
         elif(col2.button("👍", key="thumbs_up_button")):
             print("up")
@@ -405,10 +430,34 @@ def main():
             answer = st.session_state.generated[-1]
             
             # Write the question and answer to a new text file
-            with open("Correct_answer.txt", "a") as f:
-                f.write(f"\nQuestion: {question}\nAnswer: {answer}\n")
+            # with open("Correct_answer.txt", "a") as f:
+            #     f.write(f"\nQuestion: {question}\nAnswer: {answer}\n")
             
-            st.success("Question & Answer saved in Correct_answer.txt")
+            # st.success("Question & Answer saved in Correct_answer.txt")
+            #======================================================================================
+
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+
+            # Define the file path for the CSV file
+            csv_file_path = "thumbs_up_log.csv"
+
+            # Check if the CSV file exists, and create it if it doesn't
+            file_exists = os.path.isfile(csv_file_path)
+            with open(csv_file_path, mode='a', newline='') as f:
+                fieldnames = ['Timestamp', 'Question', 'Answer']
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                if not file_exists:
+                    writer.writeheader()
+
+            # Write the question, answer, and timestamp to the CSV file
+            with open(csv_file_path, mode='a', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writerow({'Timestamp': timestamp, 'Question': question, 'Answer': answer})
+
+            # Display success message to the user
+            st.success("Question, answer, and timestamp saved in thumbs_up_log.csv")
+
+            #========================================================================================
             st.session_state['show_button'] = ""
             
             
